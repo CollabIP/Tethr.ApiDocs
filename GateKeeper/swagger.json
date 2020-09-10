@@ -1,0 +1,1467 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Tethr GateKeeper API",
+    "description": "Public API for integrating with Tethr.",
+    "contact": {
+      "name": "Tethr Support",
+      "url": "https://tethr.com",
+      "email": "support@tethr.com"
+    },
+    "version": "v1"
+  },
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/caseCapture/v1": {
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Process case",
+        "description": "Upload case records to Tethr for processing.  Cases must be complete, as there is not support for adding additional messages to an existing case once uploaded.",
+        "operationId": "Case_Post",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "description": "The case request details.",
+            "schema": {
+              "$ref": "#/definitions/CaseRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "The request completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/CaseResponse"
+            }
+          },
+          "400": {
+            "description": "An invalid or missing value as found in the request body or configuration."
+          },
+          "401": {
+            "description": "The authentication token is invalid or the user does not have Case permission."
+          }
+        }
+      }
+    },
+    "/callCapture/v1/archive": {
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Process call with audio",
+        "description": "Send in a call that has a completed recording, and it's metadata.  See https://support.tethr.com/hc/en-us/articles/115011196408-Archived-Call-Upload-API for more detail on how to use this API.",
+        "operationId": "Archive_PostFormData",
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ArchiveCallResponse"
+            }
+          },
+          "409": {
+            "description": "A call already exists with the specified session Id."
+          },
+          "400": {
+            "description": "An error in the request body."
+          }
+        }
+      }
+    },
+    "/callEvent/v1/outofband/event": {
+      "post": {
+        "tags": [
+          "Async Metadata"
+        ],
+        "summary": "Add Metadata via session Id",
+        "description": "Append metadata to a call or chat using the Session Id for the interaction",
+        "operationId": "AsyncMetaData_CallEvent",
+        "parameters": [
+          {
+            "name": "eventData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CallEventRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request completed successfully."
+          },
+          "400": {
+            "description": "An invalid or missing value as found in the request body or configuration."
+          },
+          "401": {
+            "description": "The authentication token is invalid or the user does not have AsyncMetaData permission."
+          }
+        }
+      }
+    },
+    "/callEvent/v1/outofband/mastercall": {
+      "post": {
+        "tags": [
+          "Async Metadata"
+        ],
+        "summary": "Add Metadata via master call Id",
+        "description": "Append metadata to all interaction of a given master call Id.",
+        "operationId": "AsyncMetaData_MasterCallEvent",
+        "parameters": [
+          {
+            "name": "eventData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MasterCallEventRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request completed successfully."
+          },
+          "400": {
+            "description": "An invalid or missing value as found in the request body or configuration."
+          },
+          "401": {
+            "description": "The authentication token is invalid or the user does not have AsyncMetaData permission."
+          }
+        }
+      }
+    },
+    "/callEvent/v1/outofband/case": {
+      "post": {
+        "tags": [
+          "Async Metadata"
+        ],
+        "summary": "Add Metadata via case reference Id",
+        "description": "Append metadata to case via it's case reference id.",
+        "operationId": "AsyncMetaData_CaseEvent",
+        "parameters": [
+          {
+            "name": "eventData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CaseEventRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request completed successfully."
+          },
+          "400": {
+            "description": "An invalid or missing value as found in the request body or configuration."
+          },
+          "401": {
+            "description": "The authentication token is invalid or the user does not have AsyncMetaData permission."
+          }
+        }
+      }
+    },
+    "/calls/v1/{id}": {
+      "get": {
+        "tags": [
+          "Call"
+        ],
+        "operationId": "Call_GetCall",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "x-nullable": false
+          },
+          {
+            "type": "boolean",
+            "name": "isFlow",
+            "in": "query",
+            "default": false,
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/CallDetails"
+            }
+          }
+        }
+      }
+    },
+    "/callShare/v1/token": {
+      "post": {
+        "tags": [
+          "Share"
+        ],
+        "summary": "Create Share Token",
+        "description": "Creates a single use share token for a given email address to a given interaction, using the Tethr call Id.",
+        "operationId": "CallShare_ShareCall",
+        "parameters": [
+          {
+            "name": "share",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CallShare"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/CallShareResponse"
+            }
+          }
+        }
+      }
+    },
+    "/chatCapture/v1": {
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Process chat",
+        "description": "Upload chat records to Tethr for processing.  Chats must be complete, as there is not support for adding additional messages to an existing chat once uploaded.",
+        "operationId": "Chat_PostChatData",
+        "parameters": [
+          {
+            "name": "chat",
+            "in": "body",
+            "required": true,
+            "description": "The chat details",
+            "schema": {
+              "$ref": "#/definitions/ChatCallRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "The request completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/CaseResponse"
+            }
+          },
+          "400": {
+            "description": "An invalid or missing value as found in the request body or configuration."
+          },
+          "401": {
+            "description": "The authentication token is invalid or the user does not have Case permission."
+          }
+        }
+      }
+    },
+    "/purge/v1/calls": {
+      "post": {
+        "tags": [
+          "Purge"
+        ],
+        "summary": "Purge via call Ids",
+        "description": "A maximum of 100 calls can be purged in a single request",
+        "operationId": "PurgeCalls_PurgeCalls",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "description": "Call IDs to purge",
+            "schema": {
+              "$ref": "#/definitions/PurgeRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "An array containing the purge status of the requested calls",
+            "schema": {
+              "$ref": "#/definitions/PurgeSummary"
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/purge/v1/calls/sessions": {
+      "post": {
+        "tags": [
+          "Purge"
+        ],
+        "summary": "Purge via session IDs",
+        "description": "A maximum of 100 sessions can be purged in a single request",
+        "operationId": "PurgeCalls_PurgeCallsBySessionId",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "description": "Session IDs to purge",
+            "schema": {
+              "$ref": "#/definitions/PurgeRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "An array containing the purge status of the requested sessions",
+            "schema": {
+              "$ref": "#/definitions/PurgeSummary"
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/purge/v1/calls/customer": {
+      "post": {
+        "tags": [
+          "Purge"
+        ],
+        "summary": "Purge via customer phone number",
+        "description": "Purge all interaction with specified customer phone numbers",
+        "operationId": "PurgeCalls_PurgeCallsByCustomerPhoneNumber",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "description": "The specified customer phone number, number format must match that of what is in Tethr.",
+            "schema": {
+              "$ref": "#/definitions/PurgeByCustomerPhoneNumberRequest"
+            },
+            "x-nullable": false
+          },
+          {
+            "type": "boolean",
+            "name": "whatIf",
+            "in": "query",
+            "description": "Needs to be set to false in order to execute the purge",
+            "default": false,
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "An array containing the purge status of the requested calls",
+            "schema": {
+              "$ref": "#/definitions/PurgeSummary"
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/callCapture/v1/status/{sessionId}": {
+      "get": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Get interaction processing status",
+        "description": "Returns the status of an interaction uploaded to Tethr by looking up the session Id.",
+        "operationId": "Status_Get",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "description": "The session ID assigned when uploading call.",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "The status of the call",
+            "schema": {
+              "$ref": "#/definitions/SessionStatus"
+            }
+          }
+        }
+      }
+    },
+    "/callCapture/v1/status": {
+      "post": {
+        "tags": [
+          "Capture"
+        ],
+        "summary": "Get interaction processing status (Bulk)",
+        "operationId": "Status_BulkGet",
+        "parameters": [
+          {
+            "name": "bulk",
+            "in": "body",
+            "required": true,
+            "description": "The session IDs assigned when the calls were uploaded.",
+            "schema": {
+              "$ref": "#/definitions/BulkSessionStatuses"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "The status of the requested sessions",
+            "schema": {
+              "$ref": "#/definitions/SessionStatuses"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CaseResponse": {
+      "type": "object",
+      "description": "Response when creating or updating a case.",
+      "properties": {
+        "ReferenceId": {
+          "type": "string",
+          "description": "The external case ID that was sent in the request."
+        },
+        "CaseId": {
+          "type": "string",
+          "description": "The ID that uniquely identifies the case as it exists in Tethr."
+        }
+      }
+    },
+    "CaseRequest": {
+      "type": "object",
+      "description": "Request for creating or updating a case.",
+      "example": {
+        "referenceId": "case1234",
+        "metadata": {
+          "field__c": "a value"
+        },
+        "utcStart": "2017-08-16T19:30:00Z",
+        "utcEnd": "2017-08-16T19:35:00Z",
+        "messages": [
+          {
+            "senderReferenceId": "C1",
+            "utcTimestamp": "2017-08-16T19:30:00Z",
+            "content": "Hello, I need some help!",
+            "channel": "Web"
+          }
+        ],
+        "contacts": [
+          {
+            "referenceId": "C1",
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "email": "jane@doe.org",
+            "phoneNumber": "4155551212",
+            "type": "customer"
+          }
+        ]
+      },
+      "required": [
+        "ReferenceId",
+        "UtcStart",
+        "UtcEnd",
+        "Contacts"
+      ],
+      "properties": {
+        "ReferenceId": {
+          "type": "string",
+          "description": "The external case ID from the source system.",
+          "minLength": 1
+        },
+        "Metadata": {
+          "description": "The metadata attached to the case."
+        },
+        "UtcStart": {
+          "type": "string",
+          "description": "The datetime when the case was opened in UTC.",
+          "format": "date-time"
+        },
+        "UtcEnd": {
+          "type": "string",
+          "description": "The datetime when the case was closed in UTC.",
+          "format": "date-time"
+        },
+        "Messages": {
+          "type": "array",
+          "description": "The messages for the case.",
+          "items": {
+            "$ref": "#/definitions/Message"
+          }
+        },
+        "Contacts": {
+          "type": "array",
+          "description": "The contacts that received the message.",
+          "items": {
+            "$ref": "#/definitions/ContactRequest"
+          }
+        }
+      }
+    },
+    "Message": {
+      "type": "object",
+      "description": "The text message details.",
+      "required": [
+        "UtcTimestamp",
+        "SenderReferenceId",
+        "Channel",
+        "Content"
+      ],
+      "properties": {
+        "UtcTimestamp": {
+          "type": "string",
+          "description": "The datetime of the message in UTC.",
+          "format": "date-time"
+        },
+        "SenderReferenceId": {
+          "type": "string",
+          "description": "Reference ID of the contact who sent the message.",
+          "minLength": 1
+        },
+        "Channel": {
+          "type": "string",
+          "description": "The communication channel.",
+          "minLength": 1
+        },
+        "Content": {
+          "type": "string",
+          "description": "The message body or content of the interaction.",
+          "minLength": 1
+        }
+      }
+    },
+    "ContactRequest": {
+      "type": "object",
+      "description": "The contact that participates in a message.",
+      "required": [
+        "ReferenceId",
+        "FirstName",
+        "LastName",
+        "Type"
+      ],
+      "properties": {
+        "ReferenceId": {
+          "type": "string",
+          "description": "A Reference Id or name for the contact. ",
+          "minLength": 1
+        },
+        "FirstName": {
+          "type": "string",
+          "description": "First name of the contact.",
+          "minLength": 1
+        },
+        "LastName": {
+          "type": "string",
+          "description": "Last name of the contact.",
+          "minLength": 1
+        },
+        "Email": {
+          "type": "string",
+          "description": "The email address of the contact."
+        },
+        "PhoneNumber": {
+          "type": "string",
+          "description": "The phone number of the contact."
+        },
+        "Type": {
+          "type": "string",
+          "description": "The type of contact. Default types are \"Agent\" and \"Customer\".",
+          "minLength": 1
+        }
+      }
+    },
+    "ArchiveCallResponse": {
+      "type": "object",
+      "properties": {
+        "CallId": {
+          "type": "string"
+        }
+      }
+    },
+    "CallEventRequest": {
+      "type": "object",
+      "description": "Metadata to append to an interactions with the specified session Id.",
+      "example": {
+        "sessionId": "string",
+        "eventTime": "2020-09-10T03:16:11.19Z",
+        "metadata": {
+          "field__c": "a value"
+        }
+      },
+      "required": [
+        "SessionId",
+        "EventTime",
+        "Metadata"
+      ],
+      "properties": {
+        "SessionId": {
+          "type": "string",
+          "description": "The session Id for the call or chat this metadata should be appended to.",
+          "minLength": 1
+        },
+        "EventTime": {
+          "type": "string",
+          "description": "The time stamp of the event this metadata represents.",
+          "format": "date-time"
+        },
+        "Metadata": {
+          "description": "The free-form JSON object that will be appended to the interaction metadata."
+        }
+      }
+    },
+    "MasterCallEventRequest": {
+      "type": "object",
+      "description": "Metadata to append to all interactions with the specified master call Id.",
+      "example": {
+        "masterCallId": "string",
+        "eventTime": "2020-09-10T03:16:11.19Z",
+        "metadata": {
+          "field__c": "a value"
+        }
+      },
+      "required": [
+        "MasterCallId",
+        "EventTime",
+        "Metadata"
+      ],
+      "properties": {
+        "MasterCallId": {
+          "type": "string",
+          "description": "The master call Id the metadata should be appended to.",
+          "minLength": 1
+        },
+        "EventTime": {
+          "type": "string",
+          "description": "The time stamp of the event this metadata represents.",
+          "format": "date-time"
+        },
+        "Metadata": {
+          "description": "The free-form JSON object that will be appended to the interaction metadata."
+        }
+      }
+    },
+    "CaseEventRequest": {
+      "type": "object",
+      "description": "Metadata to append to the case with the specified case reference Id.",
+      "example": {
+        "caseReferenceId": "string",
+        "eventTime": "2020-09-10T03:16:11.19Z",
+        "metadata": {
+          "field__c": "a value"
+        }
+      },
+      "required": [
+        "CaseReferenceId",
+        "EventTime",
+        "Metadata"
+      ],
+      "properties": {
+        "CaseReferenceId": {
+          "type": "string",
+          "description": "The Case reference Id, from the source system, this metadata should be appended to.",
+          "minLength": 1
+        },
+        "EventTime": {
+          "type": "string",
+          "description": "The time stamp of the event this metadata represents.",
+          "format": "date-time"
+        },
+        "Metadata": {
+          "description": "The free-form JSON object that will be appended to the interaction metadata."
+        }
+      }
+    },
+    "CallDetails": {
+      "type": "object",
+      "required": [
+        "UtcStart",
+        "UtcEnd",
+        "Duration",
+        "AudioDuration",
+        "Direction",
+        "HadDiarization",
+        "CallType",
+        "LastUpdatedUtc",
+        "InternalTalkTime",
+        "ExternalTalkTime",
+        "SilenceTime",
+        "StartSilenceTime",
+        "EndSilenceTime"
+      ],
+      "properties": {
+        "CallId": {
+          "type": "string"
+        },
+        "SessionId": {
+          "type": "string"
+        },
+        "CallUri": {
+          "type": "string"
+        },
+        "UtcStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "UtcEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Duration": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "AudioDuration": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "CallDisplayName": {
+          "type": "string"
+        },
+        "CallGroupId": {
+          "type": "string"
+        },
+        "CallGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CallGroup"
+          }
+        },
+        "CallMetadata": {},
+        "Classifications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CallClassification"
+          }
+        },
+        "Participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Participant"
+          }
+        },
+        "NumberDialed": {
+          "type": "string"
+        },
+        "Direction": {
+          "$ref": "#/definitions/CallDirection"
+        },
+        "MasterCallId": {
+          "type": "string"
+        },
+        "CaseReferenceId": {
+          "type": "string"
+        },
+        "Language": {
+          "type": "string"
+        },
+        "Country": {
+          "type": "string"
+        },
+        "ParticipantIdentificationConfidence": {
+          "type": "number",
+          "format": "float"
+        },
+        "HadDiarization": {
+          "type": "boolean"
+        },
+        "CallType": {
+          "$ref": "#/definitions/CallType"
+        },
+        "FlowTypeId": {
+          "type": "string"
+        },
+        "Flows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CallFlow"
+          }
+        },
+        "CustomStrings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomFieldString"
+          }
+        },
+        "CustomLongs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomFieldLong"
+          }
+        },
+        "CustomDoubles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomFieldDouble"
+          }
+        },
+        "CustomDateTimes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CustomFieldDateTime"
+          }
+        },
+        "LastUpdatedUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "InternalTalkTime": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "ExternalTalkTime": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "SilenceTime": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "StartSilenceTime": {
+          "type": "string",
+          "format": "time-span"
+        },
+        "EndSilenceTime": {
+          "type": "string",
+          "format": "time-span"
+        }
+      }
+    },
+    "CallGroup": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "Type": {
+          "type": "string"
+        }
+      }
+    },
+    "CallClassification": {
+      "type": "object",
+      "required": [
+        "Value",
+        "Missed",
+        "FromFlow"
+      ],
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "CategoryType": {
+          "type": "string"
+        },
+        "CategoryId": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "StartMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "EndMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Value": {
+          "type": "number",
+          "format": "double"
+        },
+        "Missed": {
+          "type": "boolean"
+        },
+        "Content": {
+          "type": "string"
+        },
+        "FromFlow": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Participant": {
+      "type": "object",
+      "required": [
+        "ParticipantId",
+        "FlowParticipantId",
+        "IsInternal"
+      ],
+      "properties": {
+        "ParticipantId": {
+          "type": "integer",
+          "format": "byte"
+        },
+        "FlowParticipantId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "CallId": {
+          "type": "string"
+        },
+        "RefType": {
+          "type": "string"
+        },
+        "RefId": {
+          "type": "string"
+        },
+        "ContactId": {
+          "type": "string"
+        },
+        "PhoneNumber": {
+          "type": "string"
+        },
+        "Email": {
+          "type": "string"
+        },
+        "FirstName": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "IsInternal": {
+          "type": "boolean"
+        },
+        "Segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Segment"
+          }
+        },
+        "Utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Utterance"
+          }
+        }
+      }
+    },
+    "Segment": {
+      "type": "object",
+      "required": [
+        "StartMs",
+        "EndMs",
+        "Value",
+        "FromFlow"
+      ],
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "CategoryType": {
+          "type": "string"
+        },
+        "CategoryId": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "StartMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "EndMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Value": {
+          "type": "number",
+          "format": "double"
+        },
+        "Content": {
+          "type": "string"
+        },
+        "FromFlow": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Utterance": {
+      "type": "object",
+      "required": [
+        "StartMs",
+        "EndMs"
+      ],
+      "properties": {
+        "StartMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "EndMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Words": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Word"
+          }
+        },
+        "Text": {
+          "type": "string"
+        }
+      }
+    },
+    "Word": {
+      "type": "object",
+      "required": [
+        "StartMs",
+        "EndMs",
+        "Confidence"
+      ],
+      "properties": {
+        "StartMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "EndMs": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Content": {
+          "type": "string"
+        },
+        "Confidence": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "CallDirection": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Unknown",
+        "Inbound",
+        "Outbound",
+        "Internal"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "CallType": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Call",
+        "Chat",
+        "Flow",
+        "Case"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "CallFlow": {
+      "type": "object",
+      "properties": {
+        "FlowId": {
+          "type": "string"
+        },
+        "FlowTypeId": {
+          "type": "string"
+        }
+      }
+    },
+    "CustomFieldString": {
+      "type": "object",
+      "properties": {
+        "Value": {
+          "type": "string"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        }
+      }
+    },
+    "CustomFieldLong": {
+      "type": "object",
+      "required": [
+        "Value"
+      ],
+      "properties": {
+        "Value": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        }
+      }
+    },
+    "CustomFieldDouble": {
+      "type": "object",
+      "required": [
+        "Value"
+      ],
+      "properties": {
+        "Value": {
+          "type": "number",
+          "format": "double"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        }
+      }
+    },
+    "CustomFieldDateTime": {
+      "type": "object",
+      "required": [
+        "Value"
+      ],
+      "properties": {
+        "Value": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        }
+      }
+    },
+    "CallShareResponse": {
+      "type": "object",
+      "required": [
+        "Expiration"
+      ],
+      "properties": {
+        "Expiration": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "CallUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "CallShare": {
+      "type": "object",
+      "properties": {
+        "Email": {
+          "type": "string"
+        },
+        "CallId": {
+          "type": "string"
+        }
+      }
+    },
+    "ChatCallRequest": {
+      "type": "object",
+      "required": [
+        "UtcStart",
+        "UtcEnd"
+      ],
+      "properties": {
+        "SessionId": {
+          "type": "string",
+          "description": "The SessionId is a unique identifier for each chat."
+        },
+        "MasterCallId": {
+          "type": "string",
+          "description": "A unique identify that may be shared between one or more chats, that together represent one complete chat."
+        },
+        "CaseReferenceId": {
+          "type": "string"
+        },
+        "UtcStart": {
+          "type": "string",
+          "description": "The Start time of the chat in UTC.",
+          "format": "date-time"
+        },
+        "UtcEnd": {
+          "type": "string",
+          "description": "The End time of the chat in UTC.",
+          "format": "date-time"
+        },
+        "Contacts": {
+          "type": "array",
+          "description": "A list of contacts that participated in the chat.",
+          "items": {
+            "$ref": "#/definitions/ChatContactRequest"
+          }
+        },
+        "Metadata": {
+          "description": "The metadata for the interaction."
+        }
+      }
+    },
+    "ChatContactRequest": {
+      "type": "object",
+      "properties": {
+        "ReferenceId": {
+          "type": "string",
+          "description": "A Reference Id or name for the contact. "
+        },
+        "FirstName": {
+          "type": "string",
+          "description": "Optional First name of the contact"
+        },
+        "LastName": {
+          "type": "string",
+          "description": "Optional Last name of the contact"
+        },
+        "Type": {
+          "type": "string",
+          "description": "The type of contact. Default types are \"Agent\" and \"Customer\"."
+        },
+        "Messages": {
+          "type": "array",
+          "description": "A list of chat messages from this contact.",
+          "items": {
+            "$ref": "#/definitions/ChatMessageRequest"
+          }
+        }
+      }
+    },
+    "ChatMessageRequest": {
+      "type": "object",
+      "required": [
+        "UtcTimestamp"
+      ],
+      "properties": {
+        "Content": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "UtcTimestamp": {
+          "type": "string",
+          "description": "The timestamp when the message was posted",
+          "format": "date-time"
+        },
+        "CustomEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChatCustomEventRequest"
+          }
+        }
+      }
+    },
+    "ChatCustomEventRequest": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "Source": {
+          "type": "string"
+        }
+      }
+    },
+    "PurgeSummary": {
+      "type": "object",
+      "description": "Summary of purge call operation",
+      "required": [
+        "Items"
+      ],
+      "properties": {
+        "Items": {
+          "type": "array",
+          "description": "Status of specified calls",
+          "items": {
+            "$ref": "#/definitions/PurgeSummaryItem"
+          }
+        }
+      }
+    },
+    "PurgeSummaryItem": {
+      "type": "object",
+      "description": "Result of purge call operation",
+      "required": [
+        "Status"
+      ],
+      "properties": {
+        "CallId": {
+          "type": "string",
+          "description": "Tethr call ID (can be null if requested session ID wasn't found)"
+        },
+        "SessionId": {
+          "type": "string",
+          "description": "Tethr session ID (can be null if requested call ID wasn't found)"
+        },
+        "Status": {
+          "description": "Status of purge request",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CallPurgeStatus"
+            }
+          ]
+        },
+        "ErrorMsg": {
+          "type": "string",
+          "description": "Error message, if any"
+        }
+      }
+    },
+    "CallPurgeStatus": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Error",
+        "NotFound",
+        "Purging",
+        "WhatIf"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "PurgeRequest": {
+      "type": "object",
+      "description": "Purge calls by ID",
+      "required": [
+        "Ids"
+      ],
+      "properties": {
+        "Ids": {
+          "type": "array",
+          "description": "List of IDs to purge",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PurgeByCustomerPhoneNumberRequest": {
+      "type": "object",
+      "description": "Purge calls by customer phone number",
+      "required": [
+        "PhoneNumber"
+      ],
+      "properties": {
+        "PhoneNumber": {
+          "type": "string",
+          "description": "the phone number to purge",
+          "minLength": 1
+        }
+      }
+    },
+    "SessionStatus": {
+      "type": "object",
+      "properties": {
+        "Status": {
+          "type": "string"
+        },
+        "CallId": {
+          "type": "string"
+        },
+        "SessionId": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionStatuses": {
+      "type": "object",
+      "properties": {
+        "CallSessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SessionStatus"
+          }
+        }
+      }
+    },
+    "BulkSessionStatuses": {
+      "type": "object",
+      "properties": {
+        "CallSessionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Capture",
+      "description": "APIs for sending data to Tethr for processing."
+    },
+    {
+      "name": "Async Metadata",
+      "description": "Create and update metadata for interactions."
+    },
+    {
+      "name": "Share",
+      "description": "Manage guest user share tokens, used to allow guest users access to specific calls."
+    },
+    {
+      "name": "Purge",
+      "description": "Purge specific interactions from Tethr."
+    }
+  ]
+}
