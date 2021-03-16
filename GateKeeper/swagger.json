@@ -156,7 +156,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CaseEventRequest"
+                            "$ref": "#/definitions/CaseRequest"
                         },
                         "x-nullable": false
                     }
@@ -170,6 +170,39 @@
                     },
                     "401": {
                         "description": "The authentication token is invalid or the user does not have AsyncMetaData permission."
+                    }
+                }
+            }
+        },
+        "/calls/v1/{id}": {
+            "get": {
+                "tags": [
+                    "Call"
+                ],
+                "summary": "Get Interaction Details",
+                "description": "Get the complete data set Tethr has for a given interaction.",
+                "operationId": "Call_GetCall",
+                "parameters": [{
+                        "type": "string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "x-nullable": false
+                    }, {
+                        "type": "boolean",
+                        "name": "isFlow",
+                        "in": "query",
+                        "default": false,
+                        "x-nullable": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "x-nullable": true,
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/CallDetails"
+                        }
                     }
                 }
             }
@@ -577,14 +610,6 @@
         },
         "CallEventRequest": {
             "type": "object",
-            "description": "Metadata to append to an interactions with the specified session Id.",
-            "example": {
-                "sessionId": "string",
-                "eventTime": "2020-09-10T03:16:11.19Z",
-                "metadata": {
-                    "field__c": "a value"
-                }
-            },
             "required": [
                 "SessionId",
                 "EventTime",
@@ -593,29 +618,17 @@
             "properties": {
                 "SessionId": {
                     "type": "string",
-                    "description": "The session Id for the call or chat this metadata should be appended to.",
                     "minLength": 1
                 },
                 "EventTime": {
                     "type": "string",
-                    "description": "The time stamp of the event this metadata represents.",
                     "format": "date-time"
                 },
-                "Metadata": {
-                    "description": "The free-form JSON object that will be appended to the interaction metadata."
-                }
+                "Metadata": {}
             }
         },
         "MasterCallEventRequest": {
             "type": "object",
-            "description": "Metadata to append to all interactions with the specified master call Id.",
-            "example": {
-                "masterCallId": "string",
-                "eventTime": "2020-09-10T03:16:11.19Z",
-                "metadata": {
-                    "field__c": "a value"
-                }
-            },
             "required": [
                 "MasterCallId",
                 "EventTime",
@@ -624,47 +637,493 @@
             "properties": {
                 "MasterCallId": {
                     "type": "string",
-                    "description": "The master call Id the metadata should be appended to.",
                     "minLength": 1
                 },
                 "EventTime": {
                     "type": "string",
-                    "description": "The time stamp of the event this metadata represents.",
                     "format": "date-time"
                 },
-                "Metadata": {
-                    "description": "The free-form JSON object that will be appended to the interaction metadata."
+                "Metadata": {}
+            }
+        },
+        "CallDetails": {
+            "type": "object",
+            "required": [
+                "UtcStart",
+                "UtcEnd",
+                "Duration",
+                "AudioDuration",
+                "Direction",
+                "HadDiarization",
+                "CallType",
+                "LastUpdatedUtc",
+                "InternalTalkTime",
+                "ExternalTalkTime",
+                "SilenceTime",
+                "StartSilenceTime",
+                "EndSilenceTime"
+            ],
+            "properties": {
+                "CallId": {
+                    "type": "string"
+                },
+                "SessionId": {
+                    "type": "string"
+                },
+                "CallUri": {
+                    "type": "string"
+                },
+                "UtcStart": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "UtcEnd": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "Duration": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "AudioDuration": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "CallDisplayName": {
+                    "type": "string"
+                },
+                "CallGroupId": {
+                    "type": "string"
+                },
+                "CallGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CallGroup"
+                    }
+                },
+                "CallMetadata": {},
+                "Classifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CallClassification"
+                    }
+                },
+                "Participants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Participant"
+                    }
+                },
+                "NumberDialed": {
+                    "type": "string"
+                },
+                "Direction": {
+                    "$ref": "#/definitions/CallDirection"
+                },
+                "MasterCallId": {
+                    "type": "string"
+                },
+                "CaseReferenceId": {
+                    "type": "string"
+                },
+                "Language": {
+                    "type": "string"
+                },
+                "Country": {
+                    "type": "string"
+                },
+                "ParticipantIdentificationConfidence": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "HadDiarization": {
+                    "type": "boolean"
+                },
+                "CallType": {
+                    "$ref": "#/definitions/CallType"
+                },
+                "FlowTypeId": {
+                    "type": "string"
+                },
+                "Flows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CallFlow"
+                    }
+                },
+                "CustomTexts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomFieldString"
+                    }
+                },
+                "CustomStrings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomFieldString"
+                    }
+                },
+                "CustomLongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomFieldLong"
+                    }
+                },
+                "CustomDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomFieldDouble"
+                    }
+                },
+                "CustomDateTimes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomFieldDateTime"
+                    }
+                },
+                "LastUpdatedUtc": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "InternalTalkTime": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "ExternalTalkTime": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "SilenceTime": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "StartSilenceTime": {
+                    "type": "string",
+                    "format": "time-span"
+                },
+                "EndSilenceTime": {
+                    "type": "string",
+                    "format": "time-span"
                 }
             }
         },
-        "CaseEventRequest": {
+        "CallGroup": {
             "type": "object",
-            "description": "Metadata to append to the case with the specified case reference Id.",
-            "example": {
-                "caseReferenceId": "string",
-                "eventTime": "2020-09-10T03:16:11.19Z",
-                "metadata": {
-                    "field__c": "a value"
+            "properties": {
+                "Id": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                },
+                "Type": {
+                    "type": "string"
                 }
-            },
+            }
+        },
+        "CallClassification": {
+            "type": "object",
             "required": [
-                "CaseReferenceId",
-                "EventTime",
-                "Metadata"
+                "Value",
+                "Missed",
+                "FromFlow"
             ],
             "properties": {
-                "CaseReferenceId": {
-                    "type": "string",
-                    "description": "The Case reference Id, from the source system, this metadata should be appended to.",
-                    "minLength": 1
+                "Id": {
+                    "type": "string"
                 },
-                "EventTime": {
+                "CategoryType": {
+                    "type": "string"
+                },
+                "CategoryId": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                },
+                "StartMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "EndMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Value": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "Missed": {
+                    "type": "boolean"
+                },
+                "Content": {
+                    "type": "string"
+                },
+                "FromFlow": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "Participant": {
+            "type": "object",
+            "required": [
+                "ParticipantId",
+                "FlowParticipantId",
+                "IsInternal"
+            ],
+            "properties": {
+                "ParticipantId": {
+                    "type": "integer",
+                    "format": "byte"
+                },
+                "FlowParticipantId": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "CallId": {
+                    "type": "string"
+                },
+                "RefType": {
+                    "type": "string"
+                },
+                "RefId": {
+                    "type": "string"
+                },
+                "ContactId": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                },
+                "Email": {
+                    "type": "string"
+                },
+                "FirstName": {
+                    "type": "string"
+                },
+                "LastName": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                },
+                "IsInternal": {
+                    "type": "boolean"
+                },
+                "Segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Segment"
+                    }
+                },
+                "Utterances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Utterance"
+                    }
+                }
+            }
+        },
+        "Segment": {
+            "type": "object",
+            "required": [
+                "StartMs",
+                "EndMs",
+                "Value",
+                "FromFlow"
+            ],
+            "properties": {
+                "Id": {
+                    "type": "string"
+                },
+                "CategoryType": {
+                    "type": "string"
+                },
+                "CategoryId": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                },
+                "StartMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "EndMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Value": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "Content": {
+                    "type": "string"
+                },
+                "FromFlow": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "Utterance": {
+            "type": "object",
+            "required": [
+                "StartMs",
+                "EndMs"
+            ],
+            "properties": {
+                "StartMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "EndMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Words": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Word"
+                    }
+                },
+                "Text": {
+                    "type": "string"
+                }
+            }
+        },
+        "Word": {
+            "type": "object",
+            "required": [
+                "StartMs",
+                "EndMs",
+                "Confidence"
+            ],
+            "properties": {
+                "StartMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "EndMs": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Content": {
+                    "type": "string"
+                },
+                "Confidence": {
+                    "type": "number",
+                    "format": "double"
+                }
+            }
+        },
+        "CallDirection": {
+            "type": "integer",
+            "description": "",
+            "x-enumNames": [
+                "Unknown",
+                "Inbound",
+                "Outbound",
+                "Internal"
+            ],
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ]
+        },
+        "CallType": {
+            "type": "integer",
+            "description": "",
+            "x-enumNames": [
+                "Call",
+                "Chat",
+                "Flow",
+                "Case"
+            ],
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ]
+        },
+        "CallFlow": {
+            "type": "object",
+            "properties": {
+                "FlowId": {
+                    "type": "string"
+                },
+                "FlowTypeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomFieldString": {
+            "type": "object",
+            "properties": {
+                "Value": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomFieldLong": {
+            "type": "object",
+            "required": [
+                "Value"
+            ],
+            "properties": {
+                "Value": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomFieldDouble": {
+            "type": "object",
+            "required": [
+                "Value"
+            ],
+            "properties": {
+                "Value": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomFieldDateTime": {
+            "type": "object",
+            "required": [
+                "Value"
+            ],
+            "properties": {
+                "Value": {
                     "type": "string",
-                    "description": "The time stamp of the event this metadata represents.",
                     "format": "date-time"
                 },
-                "Metadata": {
-                    "description": "The free-form JSON object that will be appended to the interaction metadata."
+                "Id": {
+                    "type": "string"
+                },
+                "DisplayName": {
+                    "type": "string"
                 }
             }
         },
@@ -752,6 +1211,10 @@
                 "Type": {
                     "type": "string",
                     "description": "The type of contact. Default types are \"Agent\" and \"Customer\"."
+                },
+                "Email": {
+                    "type": "string",
+                    "description": "The email of the contact."
                 },
                 "Messages": {
                     "type": "array",
