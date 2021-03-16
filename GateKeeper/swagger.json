@@ -10,6 +10,7 @@
         },
         "version": "v1"
     },
+    "host": "localhost:21321",
     "schemes": [
         "http"
     ],
@@ -177,7 +178,7 @@
         "/calls/v1/{id}": {
             "get": {
                 "tags": [
-                    "Call"
+                    "Interaction"
                 ],
                 "summary": "Get Interaction Details",
                 "description": "Get the complete data set Tethr has for a given interaction.",
@@ -198,11 +199,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "x-nullable": true,
-                        "description": "",
+                        "x-nullable": false,
+                        "description": "The request completed successfully.",
                         "schema": {
                             "$ref": "#/definitions/CallDetails"
                         }
+                    },
+                    "400": {
+                        "description": "An invalid or missing value as found in the request body or configuration."
+                    },
+                    "401": {
+                        "description": "The authentication token is invalid or the user does not have Case permission."
                     }
                 }
             }
@@ -665,144 +672,186 @@
             ],
             "properties": {
                 "CallId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Tethr Call ID, or Flow ID if this has a CallType of Flow."
                 },
                 "SessionId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Session Id from the originating audio ingestion system."
                 },
                 "CallUri": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The URI to the Call in Tethr."
                 },
                 "UtcStart": {
                     "type": "string",
+                    "description": "The start time of the call, in UTC time.",
                     "format": "date-time"
                 },
                 "UtcEnd": {
                     "type": "string",
+                    "description": "The end time of the call, in UTC time.",
                     "format": "date-time"
                 },
                 "Duration": {
                     "type": "string",
+                    "description": "The duration of the call.",
                     "format": "time-span"
                 },
                 "AudioDuration": {
                     "type": "string",
+                    "description": "The duration of the mixed audio file of the call.",
                     "format": "time-span"
                 },
                 "CallDisplayName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The display name for the call based on it's call groups in Tethr."
                 },
                 "CallGroupId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "This is a concatenated list of call group IDs assigned to this call in Tethr."
                 },
                 "CallGroups": {
                     "type": "array",
+                    "description": "Details about the call groups assigned to this call in Tethr.",
                     "items": {
                         "$ref": "#/definitions/CallGroup"
                     }
                 },
-                "CallMetadata": {},
+                "CallMetadata": {
+                    "description": "A dynamic JSON object that contains all the extra metadata send along with the call, from the originating audio ingestion system."
+                },
                 "Classifications": {
                     "type": "array",
+                    "description": "Any Classifications associated to this call by Tethr, not specific to any participant.",
                     "items": {
                         "$ref": "#/definitions/CallClassification"
                     }
                 },
                 "Participants": {
                     "type": "array",
+                    "description": "The participants that took part in the call. Typically these are a company employee/agent and a customer.",
                     "items": {
                         "$ref": "#/definitions/Participant"
                     }
                 },
                 "NumberDialed": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The phone number that was dialed that started the call."
                 },
                 "Direction": {
-                    "$ref": "#/definitions/CallDirection"
+                    "description": "The direction of the call, can be inbound (e.g. customer calls the agent), outbound (e.g. agent calls the customer), or internal (e.g. agent talking with supervisor).",
+                    "allOf": [{
+                            "$ref": "#/definitions/CallDirection"
+                        }
+                    ]
                 },
                 "MasterCallId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A call ID that may be shared between one or more calls, that together represent one complete call."
                 },
                 "CaseReferenceId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Case Id this interaction is associated to."
                 },
                 "Language": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The 3 letter language code (ISO 639-3 Alpha-3 Code) that this call is most likely/predominantly going to contain."
                 },
                 "Country": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The 3 letter country code (ISO 3166 ALPHA-3 Code) of the dialect most likely spoken on this call."
                 },
                 "ParticipantIdentificationConfidence": {
                     "type": "number",
+                    "description": "Confidence of participant type match algorithms run after the diarization processor. Null if diarization processor was not run.",
                     "format": "float"
                 },
                 "HadDiarization": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "The call had Diarization run on the audio (e.g. the call was mono, and was split into multiple audio streams, one for each participant)."
                 },
                 "CallType": {
-                    "$ref": "#/definitions/CallType"
+                    "description": "The Call type. Will be Flow if this is a composite call or case (flow).",
+                    "allOf": [{
+                            "$ref": "#/definitions/CallType"
+                        }
+                    ]
                 },
                 "FlowTypeId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Flow type id. Only available if this is a flow."
                 },
                 "Flows": {
                     "type": "array",
+                    "description": "The flows that are on this call. Only available if this is a call.",
                     "items": {
                         "$ref": "#/definitions/CallFlow"
                     }
                 },
                 "CustomTexts": {
                     "type": "array",
+                    "description": "Custom fields defined as text data type",
                     "items": {
                         "$ref": "#/definitions/CustomFieldString"
                     }
                 },
                 "CustomStrings": {
                     "type": "array",
+                    "description": "Custom fields defined as string or keyword lookup data type",
                     "items": {
                         "$ref": "#/definitions/CustomFieldString"
                     }
                 },
                 "CustomLongs": {
                     "type": "array",
+                    "description": "Custom fields defined as long number data type",
                     "items": {
                         "$ref": "#/definitions/CustomFieldLong"
                     }
                 },
                 "CustomDoubles": {
                     "type": "array",
+                    "description": "Custom fields defined as double / float data type",
                     "items": {
                         "$ref": "#/definitions/CustomFieldDouble"
                     }
                 },
                 "CustomDateTimes": {
                     "type": "array",
+                    "description": "Custom fields defined as data times",
                     "items": {
                         "$ref": "#/definitions/CustomFieldDateTime"
                     }
                 },
                 "LastUpdatedUtc": {
                     "type": "string",
+                    "description": "The timestamp in UTC of the last time this interaction was updated",
                     "format": "date-time"
                 },
                 "InternalTalkTime": {
                     "type": "string",
+                    "description": "The time the internal participants was talking on the interaction",
                     "format": "time-span"
                 },
                 "ExternalTalkTime": {
                     "type": "string",
+                    "description": "The time the external participants was talking on the interaction",
                     "format": "time-span"
                 },
                 "SilenceTime": {
                     "type": "string",
+                    "description": "The sum of all silence time on the interaction",
                     "format": "time-span"
                 },
                 "StartSilenceTime": {
                     "type": "string",
+                    "description": "The length of silence time at the start of the interaction.",
                     "format": "time-span"
                 },
                 "EndSilenceTime": {
                     "type": "string",
+                    "description": "The length of silence time at the end of the interaction.",
                     "format": "time-span"
                 }
             }
@@ -811,13 +860,16 @@
             "type": "object",
             "properties": {
                 "Id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The ID of the call group in tethr."
                 },
                 "DisplayName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The display name of the call group."
                 },
                 "Type": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The type of call group (e.g. Division, Location, Team, Skill, Campaign)"
                 }
             }
         },
@@ -830,34 +882,43 @@
             ],
             "properties": {
                 "Id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A unique ID given to each instance of Classification."
                 },
                 "CategoryType": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Category Type of the Classifications"
                 },
                 "CategoryId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Category ID from the given sub system in Tethr that assigned the Classification"
                 },
                 "DisplayName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The user friendly name of the Classification"
                 },
                 "StartMs": {
                     "type": "integer",
+                    "description": "The start time of the classification in Milliseconds from the start of the call, if applicable.",
                     "format": "int64"
                 },
                 "EndMs": {
                     "type": "integer",
+                    "description": "The end time of the classification in Milliseconds from the start of the call, if applicable.",
                     "format": "int64"
                 },
                 "Value": {
                     "type": "number",
+                    "description": "A numerical value for the classification, if applicable.",
                     "format": "double"
                 },
                 "Missed": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Indicates that this classification was required but not hit"
                 },
                 "Content": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Relevant content of the Classification"
                 },
                 "FromFlow": {
                     "type": "boolean"
@@ -874,50 +935,64 @@
             "properties": {
                 "ParticipantId": {
                     "type": "integer",
+                    "description": "The Id for this Participant within Tethr",
                     "format": "byte"
                 },
                 "FlowParticipantId": {
                     "type": "integer",
+                    "description": "If this is a flow, this id will match for participants that reference the same identity.",
                     "format": "int32"
                 },
                 "CallId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "If this is a flow, this is the id of the call this participant is from."
                 },
                 "RefType": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The type for the external reference ID stored in \"RefId\" for this participant."
                 },
                 "RefId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The external reference ID corresponding to the system specified in the RefType field."
                 },
                 "ContactId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The unique ID give to this participant from the originating audio ingestion system."
                 },
                 "PhoneNumber": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The phone number from the Caller ID for this participant."
                 },
                 "Email": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The email address of the participant, if available."
                 },
                 "FirstName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The First Name of the participant. if available."
                 },
                 "LastName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Last Name of the participant. if available."
                 },
                 "DisplayName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The general purpose Display Name of the participant, generated from the other fields."
                 },
                 "IsInternal": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "A flag indicating this participant is inside the call center\n(e.g. this would be true if it's an employee/agent in the call center, and false if it's an external customer)."
                 },
                 "Segments": {
                     "type": "array",
+                    "description": "The different elements Tethr detected on a call from this participant, similar to classifications.",
                     "items": {
                         "$ref": "#/definitions/Segment"
                     }
                 },
                 "Utterances": {
                     "type": "array",
+                    "description": "The utterances and the words from this participant, if provided.",
                     "items": {
                         "$ref": "#/definitions/Utterance"
                     }
@@ -934,31 +1009,39 @@
             ],
             "properties": {
                 "Id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A unique ID given to each instance of Classification."
                 },
                 "CategoryType": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Category Type of the Classifications"
                 },
                 "CategoryId": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The Category ID from the given sub system in Tethr that assigned the Classification"
                 },
                 "DisplayName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The user friendly name of the Classification"
                 },
                 "StartMs": {
                     "type": "integer",
+                    "description": "The start time of the segment in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "EndMs": {
                     "type": "integer",
+                    "description": "The end time of the segment in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "Value": {
                     "type": "number",
+                    "description": "A numerical value for the classification, if applicable.",
                     "format": "double"
                 },
                 "Content": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Where appropriate, the content will be part of the transcript that triggered the segments."
                 },
                 "FromFlow": {
                     "type": "boolean"
@@ -974,20 +1057,24 @@
             "properties": {
                 "StartMs": {
                     "type": "integer",
+                    "description": "The start time of the utterance in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "EndMs": {
                     "type": "integer",
+                    "description": "The end time of the utterance in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "Words": {
                     "type": "array",
+                    "description": "The words spoken during this utterance.",
                     "items": {
                         "$ref": "#/definitions/Word"
                     }
                 },
                 "Text": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Raw text of the utterance"
                 }
             }
         },
@@ -1001,17 +1088,21 @@
             "properties": {
                 "StartMs": {
                     "type": "integer",
+                    "description": "The start time of the word in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "EndMs": {
                     "type": "integer",
+                    "description": "The end time of the word in Milliseconds from the start of the call.",
                     "format": "int64"
                 },
                 "Content": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The text of the word at this time."
                 },
                 "Confidence": {
                     "type": "number",
+                    "description": "The confidence score for the transcription.",
                     "format": "double"
                 }
             }
@@ -1034,7 +1125,7 @@
         },
         "CallType": {
             "type": "integer",
-            "description": "",
+            "description": "Type of call. This is used to determine how to bill customers (voice calls are billed differently from live chat sessions).",
             "x-enumNames": [
                 "Call",
                 "Chat",
@@ -1392,6 +1483,9 @@
         }, {
             "name": "Async Metadata",
             "description": "Create and update metadata for interactions."
+        }, {
+            "name": "Interaction",
+            "description": "APIs for retreating interaction details."
         }, {
             "name": "Share",
             "description": "Manage guest user share tokens, used to allow guest users access to specific calls."
