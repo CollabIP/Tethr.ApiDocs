@@ -1,3 +1,3 @@
-# Tethr Public API documentation
+# Tethr API Docs Have moved.
 
-* [Gatekeeper APIs](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/CollabIP/Tethr.ApiDocs/master/GateKeeper/swagger.json)
+Tethr has moved our API doc to a new site please see https://docs.tethr.com.
